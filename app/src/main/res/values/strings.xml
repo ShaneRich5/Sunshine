@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">Sunshine</string>
+    <string name="openweathermap_api_key">087ba7456f7a40b80b1990b3d2381389</string>
 </resources>
