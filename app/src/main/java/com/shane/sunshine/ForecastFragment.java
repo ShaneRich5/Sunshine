@@ -1,5 +1,8 @@
 package com.shane.sunshine;
 
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -13,6 +16,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
@@ -61,7 +65,22 @@ public class ForecastFragment extends Fragment {
                 R.layout.list_item_forecast, R.id.list_item_forecast_textview, weekForecast);
         ListView listView = (ListView) rootView.findViewById(R.id.listview_forecast);
         listView.setAdapter(forecastArrayAdapter);
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
+                String forecast = (String) forecastArrayAdapter.getItem(position);
+                Intent intent = new Intent(getContext(), DetailActivity.class)
+                        .putExtra(Intent.EXTRA_TEXT, forecast);
+                startActivity(intent);
+            }
+        });
         return rootView;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        updateWeather();
     }
 
     private List<String> generateDummyForecastData() {
@@ -82,12 +101,25 @@ public class ForecastFragment extends Fragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.action_refresh:
-
-                FetchWeatherTask weatherTask = new FetchWeatherTask();
-                weatherTask.execute("94043");
+                updateWeather();
+                return true;
+            case R.id.action_setting:
+                startActivity(new Intent(getActivity(), SettingsActivity.class));
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void updateWeather() {
+        String zipCode = String.valueOf(loadZipCodeFromPreferences());
+        FetchWeatherTask weatherTask = new FetchWeatherTask();
+        weatherTask.execute(zipCode);
+    }
+
+    private String loadZipCodeFromPreferences() {
+        SharedPreferences preferences = getActivity().getPreferences(Context.MODE_PRIVATE);
+        String defaultZipCode = getResources().getString(R.string.pref_location_default);
+        return preferences.getString(getString(R.string.pref_location_key), defaultZipCode);
     }
 
     /* The date/time conversion code is going to be moved outside the asynctask later,
