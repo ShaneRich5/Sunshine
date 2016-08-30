@@ -7,11 +7,15 @@ import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
 public class DetailActivity extends AppCompatActivity {
+    public static final String TAG = DetailActivity.class.getSimpleName();
+
+    private String forecast;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,7 +29,7 @@ public class DetailActivity extends AppCompatActivity {
         Intent intent = getIntent();
 
         if (intent != null && intent.hasExtra(Intent.EXTRA_TEXT)) {
-            String forecast = getIntent().getStringExtra(Intent.EXTRA_TEXT);
+            forecast = getIntent().getStringExtra(Intent.EXTRA_TEXT);
             forecastTextView.setText(forecast);
         }
 
@@ -45,15 +49,28 @@ public class DetailActivity extends AppCompatActivity {
             case android.R.id.home:
                 finish();
                 return true;
+            case R.id.action_share:
+                shareForecast();
+                return true;
             case R.id.action_setting:
                 startActivity(new Intent(DetailActivity.this, SettingsActivity.class));
         }
         return super.onOptionsItemSelected(item);
     }
 
+    private void shareForecast() {
+        final String contentToShare = forecast + " #SunshineApp";
+        Intent shareIntent = new Intent();
+        shareIntent.setAction(Intent.ACTION_SEND);
+        shareIntent.putExtra(Intent.EXTRA_TEXT, contentToShare);
+        shareIntent.setType("text/plain");
+        startActivity(Intent.createChooser(shareIntent, "Share to..."));
+    }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-
-        return super.onCreateOptionsMenu(menu);
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.detail, menu);
+        return true;
     }
 }

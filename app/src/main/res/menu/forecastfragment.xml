@@ -5,10 +5,18 @@
     <item
         android:id="@+id/action_refresh"
         android:title="@string/refresh"
+        android:orderInCategory="40"
         app:showAsAction="ifRoom"/>
+
+    <item
+        android:id="@+id/action_location"
+        android:title="@string/location"
+        android:orderInCategory="50"
+        app:showAsAction="ifRoom" />
 
     <item
         android:id="@+id/action_setting"
         android:title="@string/settings"
+        android:orderInCategory="100"
         app:showAsAction="never" />
 </menu>

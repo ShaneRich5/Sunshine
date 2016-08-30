@@ -96,11 +96,29 @@ public class ForecastFragment extends Fragment {
             case R.id.action_refresh:
                 updateWeather();
                 return true;
+            case R.id.action_location:
+                showLocationOnMap();
+                return true;
             case R.id.action_setting:
                 startActivity(new Intent(getActivity(), SettingsActivity.class));
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    private void showLocationOnMap() {
+        String zipCode = loadZipCodeFromPreferences();
+        Uri geoLocation = Uri.parse("geo:0,0?").buildUpon()
+                .appendQueryParameter("q", zipCode)
+                .build();
+
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setData(geoLocation);
+
+        if (intent.resolveActivity(getContext().getPackageManager()) != null)
+            startActivity(intent);
+        else
+            Log.d(TAG, "Couldn't call " + zipCode);
     }
 
     private void updateWeather() {
@@ -129,11 +147,7 @@ public class ForecastFragment extends Fragment {
      * Prepare the weather high/lows for presentation.
      */
     private String formatHighLows(double high, double low) {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
-        String unitType = preferences.getString(
-                getString(R.string.pref_temperature_units_key),
-                getString(R.string.pref_temperature_units_metric));
-
+        String unitType = loadTemperatureUnitsFromPreferences();
         if (unitType.equals(getString(R.string.pref_temperature_units_imperial))) {
             high = (high * 1.8) + 32;
             low = (low * 1.8) + 32;
@@ -144,6 +158,13 @@ public class ForecastFragment extends Fragment {
         long roundedLow = Math.round(low);
 
         return roundedHigh + "/" + roundedLow;
+    }
+
+    private String loadTemperatureUnitsFromPreferences() {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
+        return preferences.getString(
+                getString(R.string.pref_temperature_units_key),
+                getString(R.string.pref_temperature_units_metric));
     }
 
     /**
