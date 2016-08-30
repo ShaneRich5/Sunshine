@@ -6,6 +6,7 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.text.format.Time;
@@ -60,7 +61,10 @@ public class ForecastFragment extends Fragment {
         final View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
         forecastArrayAdapter = new ArrayAdapter<>(getContext(),
-                R.layout.list_item_forecast, R.id.list_item_forecast_textview, new ArrayList<>());
+                R.layout.list_item_forecast,
+                R.id.list_item_forecast_textview,
+                new ArrayList<>());
+
         ListView listView = (ListView) rootView.findViewById(R.id.listview_forecast);
         listView.setAdapter(forecastArrayAdapter);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -125,12 +129,21 @@ public class ForecastFragment extends Fragment {
      * Prepare the weather high/lows for presentation.
      */
     private String formatHighLows(double high, double low) {
-        // For presentation, assume the user doesn't care about tenths of a degree.
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getContext());
+        String unitType = preferences.getString(
+                getString(R.string.pref_temperature_units_key),
+                getString(R.string.pref_temperature_units_metric));
+
+        if (unitType.equals(getString(R.string.pref_temperature_units_imperial))) {
+            high = (high * 1.8) + 32;
+            low = (low * 1.8) + 32;
+        } else if (! unitType.equals(getString(R.string.pref_temperature_units_metric)))
+            Log.d(TAG, "Unit type not found: " + unitType);
+
         long roundedHigh = Math.round(high);
         long roundedLow = Math.round(low);
 
-        String highLowStr = roundedHigh + "/" + roundedLow;
-        return highLowStr;
+        return roundedHigh + "/" + roundedLow;
     }
 
     /**
