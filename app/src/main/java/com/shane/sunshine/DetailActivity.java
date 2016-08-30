@@ -61,6 +61,7 @@ public class DetailActivity extends AppCompatActivity {
     private void shareForecast() {
         final String contentToShare = forecast + " #SunshineApp";
         Intent shareIntent = new Intent();
+        shareIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
         shareIntent.setAction(Intent.ACTION_SEND);
         shareIntent.putExtra(Intent.EXTRA_TEXT, contentToShare);
         shareIntent.setType("text/plain");
