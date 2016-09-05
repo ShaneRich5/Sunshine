@@ -116,8 +116,8 @@ public class ForecastFragment extends Fragment {
 
     private void updateWeather() {
         String zipCode = String.valueOf(loadZipCodeFromPreferences());
-//        FetchWeatherTask weatherTask = new FetchWeatherTask();
-//        weatherTask.execute(zipCode);
+        FetchWeatherTask weatherTask = new FetchWeatherTask(getContext(), forecastArrayAdapter);
+        weatherTask.execute(zipCode);
     }
 
     private String loadZipCodeFromPreferences() {
