@@ -2,7 +2,7 @@
     <string name="app_name">Sunshine</string>
     <string name="openweathermap_api_key">087ba7456f7a40b80b1990b3d2381389</string>
     <string name="refresh">Refresh</string>
-    <string name="title_activity_detail">DetailActivity</string>
+    <string name="title_activity_detail">Details</string>
     <string name="title_activity_settings">Settings</string>
 
     <string-array name="pref_temperature_units_entries">
