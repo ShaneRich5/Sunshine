@@ -4,7 +4,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
@@ -25,12 +24,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
@@ -123,8 +116,8 @@ public class ForecastFragment extends Fragment {
 
     private void updateWeather() {
         String zipCode = String.valueOf(loadZipCodeFromPreferences());
-        FetchWeatherTask weatherTask = new FetchWeatherTask();
-        weatherTask.execute(zipCode);
+//        FetchWeatherTask weatherTask = new FetchWeatherTask();
+//        weatherTask.execute(zipCode);
     }
 
     private String loadZipCodeFromPreferences() {
@@ -242,90 +235,5 @@ public class ForecastFragment extends Fragment {
         }
         return resultStrs;
 
-    }
-
-    public class FetchWeatherTask extends AsyncTask<String, Void, String[]> {
-        private  final String TAG = FetchWeatherTask.class.getSimpleName();
-
-        @Override
-        protected void onPostExecute(String[] days) {
-            if (days == null) return;
-            forecastArrayAdapter.clear();
-            for (String dayForecast : days)
-                forecastArrayAdapter.add(dayForecast);
-
-        }
-
-        @Override
-        protected String[] doInBackground(String... params) {
-            HttpURLConnection urlConnection = null;
-            BufferedReader reader = null;
-            String forecastJsonStr = null;
-
-            String format = "json";
-            String units = "metric";
-            int numberOfDays = 7;
-
-            String weatherUrl = Constants.WEATHER_URL + "/data/2.5/forecast/daily";
-
-            try {
-                final String FORMAT_PARAM = "mode";
-                final String QUERY_PARAM = "q";
-                final String DAYS_PARAM = "cnt";
-                final String UNITS_PARAM = "units";
-                final String APP_ID_PARAM = "appid";
-
-                Uri uri = Uri.parse(weatherUrl).buildUpon()
-                        .appendQueryParameter(QUERY_PARAM, params[0])
-                        .appendQueryParameter(FORMAT_PARAM, format)
-                        .appendQueryParameter(DAYS_PARAM, Integer.toString(numberOfDays))
-                        .appendQueryParameter(UNITS_PARAM, units)
-                        .appendQueryParameter(APP_ID_PARAM, getString(R.string.openweathermap_api_key))
-                        .build();
-
-                URL url = new URL(uri.toString());
-
-                urlConnection = (HttpURLConnection) url.openConnection();
-                urlConnection.setRequestMethod("GET");
-                urlConnection.connect();
-                InputStream inputStream = urlConnection.getInputStream();
-                StringBuffer buffer = new StringBuffer();
-                if (inputStream == null) {
-                    return null;
-                }
-                reader = new BufferedReader(new InputStreamReader(inputStream));
-
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    buffer.append(line + "\n");
-                }
-
-                if (buffer.length() == 0) {
-                    // Stream was empty.  No point in parsing.
-                    return null;
-                }
-                forecastJsonStr = buffer.toString();
-
-                return getWeatherDataFromJson(forecastJsonStr, numberOfDays);
-            } catch (IOException e) {
-                Log.e(TAG, "Error ", e);
-                return null;
-            } catch (JSONException e) {
-                e.printStackTrace();
-            } finally{
-                if (urlConnection != null) {
-                    urlConnection.disconnect();
-                }
-                if (reader != null) {
-                    try {
-                        reader.close();
-                    } catch (final IOException e) {
-                        Log.e(TAG, "Error closing stream", e);
-                    }
-                }
-            }
-
-            return null;
-        }
     }
 }
